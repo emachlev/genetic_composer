@@ -44,8 +44,13 @@ class ChordNote(Note):
         self.notes = notes
 
     def play(self):
+        threads = []
         for note in self.notes:
-            Thread(target=note.play).start()
+            thread = Thread(target=note.play)
+            threads.append(thread)
+            thread.start()
+        for th in threads:
+            th.join()
 
     def __str__(self):
         return str(self.notes)
