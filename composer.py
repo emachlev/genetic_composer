@@ -4,7 +4,7 @@ from notes import Melody, AudioNote, RestNote
 
 GENE_SIZE = 6
 
-MELODY_SIZE = 8
+MELODY_SIZE = 16
 
 CHROMOSOME_SIZE = GENE_SIZE * MELODY_SIZE
 
