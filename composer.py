@@ -1,27 +1,56 @@
 import random
 
-from notes import Melody, AudioNote, RestNote, ChordNote
+from notes import Melody, AudioNote, RestNote
 
-CHROMOSOME_SIZE = 80  # Must be divisible by 4
+GENE_SIZE = 6
+
+MELODY_SIZE = 8
+
+CHROMOSOME_SIZE = GENE_SIZE * MELODY_SIZE
+
 POPULATION_SIZE = 10
 
 CROSSOVER_RATE = 0.7
 MUTATION_RATE = 0.001
 
-AVAILABLE_NOTES = {
-    '0000': 'A',
-    '0001': 'A#',
-    '0010': 'B',
-    '0011': 'C',
-    '0100': 'C#',
-    '0101': 'D',
-    '0110': 'D#',
-    '0111': 'E',
-    '1000': 'F',
-    '1001': 'F#',
-    '1010': 'G',
-    '1011': 'G#',
-    '1100': 'R',  # Rest note
+GENES = {
+    '000000': '3A',
+    '000001': '3A#',
+    '000010': '3B',
+    '000011': '3C',
+    '000100': '3C#',
+    '000101': '3D',
+    '000110': '3D#',
+    '000111': '3E',
+    '001000': '3F',
+    '001001': '3F#',
+    '001010': '3G',
+    '001011': '3G#',
+    '001100': '4A',
+    '001101': '4A#',
+    '001110': '4B',
+    '001111': '4C',
+    '010000': '4C#',
+    '010001': '4D',
+    '010010': '4D#',
+    '010011': '4E',
+    '010100': '4F',
+    '010101': '4F#',
+    '010110': '4G',
+    '010111': '4G#',
+    '011000': '5A',
+    '011001': '5A#',
+    '011010': '5B',
+    '011011': '5C',
+    '011100': '5C#',
+    '011101': '5D',
+    '011110': '5D#',
+    '011111': '5E',
+    '100000': '5F',
+    '100001': '5F#',
+    '100010': '5G',
+    '100011': '5G#',
+    '100100': 'R',  # Rest
 }
 
 REPETITION_RATE = 0.4
@@ -29,40 +58,42 @@ REPETITION_RATE = 0.4
 
 def get_random_chromo():
     chromo = ""
-    prev = ""
-    for _ in range(CHROMOSOME_SIZE):
-        if prev and random.uniform(0, 1) <= REPETITION_RATE:
-            char = prev
-        else:
-            char = str(random.randint(0, 1))
-        chromo += char
-        prev = char
+    while not decode_chromo(chromo):
+        chromo = ""
+        prev = ""
+        for _ in range(CHROMOSOME_SIZE):
+            if prev and random.uniform(0, 1) <= REPETITION_RATE:
+                char = prev
+            else:
+                char = str(random.randint(0, 1))
+            chromo += char
+            prev = char
     return chromo
 
 
 def validate_expression(exp):
-    exp = exp.strip('R#')
-    ret = ""
-    for i, char in enumerate(exp):
-        if not (char in ['B', 'E'] and (i < len(exp) - 1 and exp[i + 1] == '#')):
-            ret += char
-    return ret
+    while exp and exp[0] == 'R':
+        del exp[0]
+    while exp and exp[-1] == 'R':
+        del exp[-1]
+    return exp
 
 
 def decode_chromo(chromo):
-    ret = ""
-    if len(chromo) % 4 != 0:
+    ret = []
+    if len(chromo) % GENE_SIZE != 0:
         return False
-    for chunk in [str(chromo[i:i + 4]) for i in range(0, len(chromo), 4)]:
-        if chunk in AVAILABLE_NOTES:
-            ret += AVAILABLE_NOTES[chunk]
-    return validate_expression(ret)
+    for chunk in [str(chromo[i:i + GENE_SIZE]) for i in range(0, len(chromo), GENE_SIZE)]:
+        if chunk in GENES:
+            ret.append(GENES[chunk])
+    return validate_expression(ret) if ret else False
 
 
-def get_melody_from_exp(exp):
+def get_melody_from_expression(exp):
     if not exp:
         return Melody()
     ret = Melody()
+    """
     for i, char in enumerate(exp):
         if char != 'R' and (i < len(exp) - 1 and exp[i + 1] == '#') and char != '#':
             ret.append(AudioNote(char + exp[i + 1]))
@@ -70,12 +101,18 @@ def get_melody_from_exp(exp):
             ret.append(RestNote())
         elif char != '#':
             ret.append(AudioNote(char))
+    """
+    for note in exp:
+        if note == 'R':
+            ret.append(RestNote())
+        else:
+            ret.append(AudioNote(note))
     return ret
 
 
 def rate(population, fitnesses):
     for i in range(POPULATION_SIZE):
-        melody = get_melody_from_exp(decode_chromo(population[i]))
+        melody = get_melody_from_expression(decode_chromo(population[i]))
         melody.play()
         act = input(str(melody) + ' - Rate (1-10) or any key to hear again: ')
         while not act.isdigit():
