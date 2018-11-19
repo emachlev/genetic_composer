@@ -4,22 +4,6 @@ from time import sleep
 
 from playsound import playsound
 
-AVAILABLE_NOTES = (
-    'A',
-    'A#',
-    'B',
-    'C',
-    'C#',
-    'D',
-    'D#',
-    'E',
-    'F',
-    'F#',
-    'G',
-    'G#',
-    'R',  # Rest note
-)
-
 
 class Note(ABC):
     @abstractmethod
