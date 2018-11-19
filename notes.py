@@ -61,3 +61,60 @@ class Melody(list):
         for item in self:
             ret += str(item)
         return ret
+
+
+if __name__ == '__main__':
+    # Play Shape of You
+    m1 = Melody([
+        AudioNote('5C#'),
+        RestNote(),
+        AudioNote('5E'),
+        RestNote(),
+        AudioNote('5C#'),
+        AudioNote('5C#'),
+        RestNote(),
+        AudioNote('5E'),
+        RestNote(),
+        AudioNote('5C#'),
+        AudioNote('5C#'),
+        RestNote(),
+        AudioNote('5E'),
+        RestNote(),
+        AudioNote('5C#'),
+        AudioNote('5D#'),
+        RestNote(),
+        AudioNote('5C#'),
+        RestNote(),
+        AudioNote('4B'),
+    ])
+
+    m2 = Melody([
+        AudioNote('4C#'),
+        RestNote(),
+        AudioNote('4C#'),
+        RestNote(),
+        AudioNote('4C#'),
+        AudioNote('3F#'),
+        RestNote(),
+        AudioNote('3F#'),
+        RestNote(),
+        AudioNote('3F#'),
+        AudioNote('3A'),
+        RestNote(),
+        AudioNote('3A'),
+        RestNote(),
+        AudioNote('3A'),
+        AudioNote('3B'),
+        RestNote(),
+        AudioNote('3B'),
+        RestNote(),
+        AudioNote('3B'),
+    ])
+
+    while True:
+        t1 = Thread(target=m1.play)
+        t2 = Thread(target=m2.play)
+        t1.start()
+        t2.start()
+        t1.join()
+        t2.join()
