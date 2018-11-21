@@ -1,4 +1,6 @@
 import random
+import pickle
+import os.path
 
 from notes import Melody, AudioNote, RestNote
 
@@ -119,6 +121,8 @@ def rate(population, fitnesses):
             melody.play()
             act = input(str(melody) + ' - Rate (1-10) or any key to hear again: ')
         fitnesses[i] = float(act)
+        with open('fitnesses', 'wb') as fit_file:
+            pickle.dump(fitnesses, fit_file)
 
 
 def weighted_random_choice(choices):
@@ -164,10 +168,21 @@ def mutate(population, chosen):
 
 
 def main():
-    population = [get_random_chromo() for _ in range(POPULATION_SIZE)]
+    population = []
     fitnesses = {}
+    if os.path.isfile('population') and os.path.isfile('fitnesses'):
+        with open('population', 'rb') as pop_file:
+            population = pickle.load(pop_file)
+        with open('fitnesses', 'rb') as fit_file:
+            fitnesses = pickle.load(fit_file)
+    else:
+        population = [get_random_chromo() for _ in range(POPULATION_SIZE)]
     generation = 1
     while True:
+        with open('population', 'wb') as pop_file:
+            pickle.dump(population, pop_file)
+        with open('fitnesses', 'wb') as fit_file:
+            pickle.dump(fitnesses, fit_file)
         rate(population, fitnesses)
         new_population = []
         while len(new_population) < POPULATION_SIZE:
