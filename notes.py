@@ -24,6 +24,10 @@ class AudioNote(Note):
 
 
 class ChordNote(Note):
+    """
+    A list of notes that are played asynchronously
+    """
+
     def __init__(self, notes):
         self.notes = notes
 
@@ -52,6 +56,10 @@ class RestNote(Note):
 
 
 class Melody(list):
+    """
+    A list of notes that are played in order
+    """
+
     def play(self):
         for note in self:
             note.play()
@@ -60,6 +68,27 @@ class Melody(list):
         ret = ""
         for item in self:
             ret += str(item)
+        return ret
+
+
+class ParallelMelody(Melody):
+    """
+    A list of melodies that are played asynchronously
+    """
+
+    def play(self):
+        threads = []
+        for melody in self:
+            thread = Thread(target=melody.play)
+            threads.append(thread)
+            thread.start()
+        for th in threads:
+            th.join()
+
+    def __str__(self):
+        ret = ""
+        for melody in self:
+            ret += str(melody)
         return ret
 
 
@@ -111,10 +140,6 @@ if __name__ == '__main__':
         AudioNote('3B'),
     ])
 
+    mel = ParallelMelody([m1, m2])
     while True:
-        t1 = Thread(target=m1.play)
-        t2 = Thread(target=m2.play)
-        t1.start()
-        t2.start()
-        t1.join()
-        t2.join()
+        mel.play()
