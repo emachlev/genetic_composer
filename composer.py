@@ -1,16 +1,17 @@
-import random
-import pickle
 import os.path
+import pickle
+import random
 
+import samples
 from notes import Melody, AudioNote, RestNote
 
 GENE_SIZE = 6
 
-MELODY_SIZE = 16
+MELODY_SIZE = 12
 
 CHROMOSOME_SIZE = GENE_SIZE * MELODY_SIZE
 
-POPULATION_SIZE = 10
+POPULATION_SIZE = 500
 
 CROSSOVER_RATE = 0.7
 MUTATION_RATE = 0.001
@@ -52,7 +53,7 @@ GENES = {
     '100001': '5F#',
     '100010': '5G',
     '100011': '5G#',
-    '100100': 'R',  # Rest
+    # '100100': 'R',  # Rest
 }
 
 REPETITION_RATE = 0.4
@@ -60,7 +61,8 @@ REPETITION_RATE = 0.4
 
 def get_random_chromo():
     chromo = ""
-    while not decode_chromo(chromo):
+    exp = get_melody_from_expression(decode_chromo(chromo))
+    while not (exp and len(exp) > 3):
         chromo = ""
         prev = ""
         for _ in range(CHROMOSOME_SIZE):
@@ -70,6 +72,7 @@ def get_random_chromo():
                 char = str(random.randint(0, 1))
             chromo += char
             prev = char
+        exp = get_melody_from_expression(decode_chromo(chromo))
     return chromo
 
 
@@ -115,14 +118,21 @@ def get_melody_from_expression(exp):
 def rate(population, fitnesses):
     for i in range(POPULATION_SIZE):
         melody = get_melody_from_expression(decode_chromo(population[i]))
-        melody.play()
-        act = input(str(melody) + ' - Rate (1-10) or any key to hear again: ')
-        while not act.isdigit():
+        # melody.play()
+        # act = input(str(melody) + ' - Rate (1-10) or any key to hear again: ')
+        # while not act.isdigit():
+        #    melody.play()
+        #    act = input(str(melody) + ' - Rate (1-10) or any key to hear again: ')
+        try:
+            fitnesses[i] = melody.similarity(samples.SHAPE_OF_YOU_RIGHT_HAND)
+            if fitnesses[i] > 0.82:
+                melody.play()
+        except ZeroDivisionError:
+            print(melody)
             melody.play()
-            act = input(str(melody) + ' - Rate (1-10) or any key to hear again: ')
-        fitnesses[i] = float(act)
-        with open('fitnesses', 'wb') as fit_file:
-            pickle.dump(fitnesses, fit_file)
+            exit(0)
+    with open('fitnesses', 'wb') as fit_file:
+        pickle.dump(fitnesses, fit_file)
 
 
 def weighted_random_choice(choices):
@@ -170,7 +180,7 @@ def mutate(population, chosen):
 def main():
     population = []
     fitnesses = {}
-    if os.path.isfile('population') and os.path.isfile('fitnesses'):
+    if os.path.isfile('population') and os.path.isfile('fitnesses') and False:
         with open('population', 'rb') as pop_file:
             population = pickle.load(pop_file)
         with open('fitnesses', 'rb') as fit_file:
@@ -184,6 +194,7 @@ def main():
         with open('fitnesses', 'wb') as fit_file:
             pickle.dump(fitnesses, fit_file)
         rate(population, fitnesses)
+        print(max(fitnesses.values()))
         new_population = []
         while len(new_population) < POPULATION_SIZE:
             selected = select_two(fitnesses)

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from threading import Thread
 from time import sleep
-
+from difflib import SequenceMatcher
 from playsound import playsound
 
 
@@ -18,6 +18,34 @@ class AudioNote(Note):
 
     def play(self):
         playsound(self.file)
+
+    def distance(self, note):
+        if not isinstance(note, AudioNote):
+            return False
+        octave = int(self.name[0])
+        dest_octave = int(note.name[0])
+        letter = self.name[1]
+        dest_letter = note.name[1]
+        sharp = len(self.name) > 2 and self.name[2] == '#'
+        dest_sharp = len(note.name) > 2 and note.name[2] == '#'
+        ret = 0
+        if octave == dest_octave:
+            ret = ord(dest_letter) - ord(letter)
+        elif octave < dest_octave:  # fixme not accurate
+            while octave != dest_octave:
+                ret += 12
+                octave += 1
+            ret += ord(dest_letter) - ord(letter)
+        else:
+            while octave != dest_octave:
+                ret -= 12
+                octave -= 1
+            ret += ord(dest_letter) - ord(letter)
+        if sharp:
+            ret -= 1
+        if dest_sharp:
+            ret += 1
+        return ret
 
     def __str__(self):
         return self.name
@@ -63,6 +91,17 @@ class Melody(list):
     def play(self):
         for note in self:
             note.play()
+
+    def distances(self):
+        if len(self) < 2:
+            return []
+        ret = []
+        for i in range(len(self) - 1):
+            ret.append(self[i].distance(self[i + 1]))
+        return ret
+
+    def similarity(self, melody):
+        return SequenceMatcher(None, self.distances(), melody.distances()).ratio()
 
     def __str__(self):
         ret = ""
