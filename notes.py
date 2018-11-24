@@ -1,8 +1,47 @@
 from abc import ABC, abstractmethod
 from threading import Thread
 from time import sleep
-from difflib import SequenceMatcher
+
 from playsound import playsound
+
+FREQS = {
+    '3A': 45,
+    '3A#': 46,
+    '3B': 47,
+    '3C': 48,
+    '3C#': 49,
+    '3D': 50,
+    '3D#': 51,
+    '3E': 52,
+    '3F': 53,
+    '3F#': 54,
+    '3G': 55,
+    '3G#': 56,
+    '4A': 57,
+    '4A#': 58,
+    '4B': 59,
+    '4C': 60,
+    '4C#': 61,
+    '4D': 62,
+    '4D#': 63,
+    '4E': 64,
+    '4F': 65,
+    '4F#': 66,
+    '4G': 67,
+    '4G#': 68,
+    '5A': 69,
+    '5A#': 70,
+    '5B': 71,
+    '5C': 72,
+    '5C#': 73,
+    '5D': 74,
+    '5D#': 75,
+    '5E': 76,
+    '5F': 77,
+    '5F#': 78,
+    '5G': 79,
+    '5G#': 80,
+}
 
 
 class Note(ABC):
@@ -22,30 +61,7 @@ class AudioNote(Note):
     def distance(self, note):
         if not isinstance(note, AudioNote):
             return False
-        octave = int(self.name[0])
-        dest_octave = int(note.name[0])
-        letter = self.name[1]
-        dest_letter = note.name[1]
-        sharp = len(self.name) > 2 and self.name[2] == '#'
-        dest_sharp = len(note.name) > 2 and note.name[2] == '#'
-        ret = 0
-        if octave == dest_octave:
-            ret = ord(dest_letter) - ord(letter)
-        elif octave < dest_octave:  # fixme not accurate
-            while octave != dest_octave:
-                ret += 12
-                octave += 1
-            ret += ord(dest_letter) - ord(letter)
-        else:
-            while octave != dest_octave:
-                ret -= 12
-                octave -= 1
-            ret += ord(dest_letter) - ord(letter)
-        if sharp:
-            ret -= 1
-        if dest_sharp:
-            ret += 1
-        return ret
+        return FREQS[note.name] - FREQS[self.name]
 
     def __str__(self):
         return self.name
@@ -100,8 +116,11 @@ class Melody(list):
             ret.append(self[i].distance(self[i + 1]))
         return ret
 
-    def similarity(self, melody):
-        return SequenceMatcher(None, self.distances(), melody.distances()).ratio()
+    def difference(self, melody):
+        ret = 0
+        for d1, d2 in zip(self.distances(), melody.distances()):
+            ret += abs(int(d1)-int(d2))
+        return ret
 
     def __str__(self):
         ret = ""

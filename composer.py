@@ -5,9 +5,9 @@ import random
 import samples
 from notes import Melody, AudioNote, RestNote
 
-GENE_SIZE = 6
+GENE_SIZE = 5
 
-MELODY_SIZE = 12
+MELODY_SIZE = 6
 
 CHROMOSOME_SIZE = GENE_SIZE * MELODY_SIZE
 
@@ -17,42 +17,42 @@ CROSSOVER_RATE = 0.7
 MUTATION_RATE = 0.001
 
 GENES = {
-    '000000': '3A',
-    '000001': '3A#',
-    '000010': '3B',
-    '000011': '3C',
-    '000100': '3C#',
-    '000101': '3D',
-    '000110': '3D#',
-    '000111': '3E',
-    '001000': '3F',
-    '001001': '3F#',
-    '001010': '3G',
-    '001011': '3G#',
-    '001100': '4A',
-    '001101': '4A#',
-    '001110': '4B',
-    '001111': '4C',
-    '010000': '4C#',
-    '010001': '4D',
-    '010010': '4D#',
-    '010011': '4E',
-    '010100': '4F',
-    '010101': '4F#',
-    '010110': '4G',
-    '010111': '4G#',
-    '011000': '5A',
-    '011001': '5A#',
-    '011010': '5B',
-    '011011': '5C',
-    '011100': '5C#',
-    '011101': '5D',
-    '011110': '5D#',
-    '011111': '5E',
-    '100000': '5F',
-    '100001': '5F#',
-    '100010': '5G',
-    '100011': '5G#',
+    '00000': '3A',
+    '00001': '3A#',
+    '00010': '3B',
+    '00011': '3C',
+    '00100': '3C#',
+    '00101': '3D',
+    '00110': '3D#',
+    '00111': '3E',
+    '01000': '3F',
+    '01001': '3F#',
+    '01010': '3G',
+    '01011': '3G#',
+    '01100': '4A',
+    '01101': '4A#',
+    '01110': '4B',
+    '01111': '4C',
+    '10000': '4C#',
+    '10001': '4D',
+    '10010': '4D#',
+    '10011': '4E',
+    '10100': '4F',
+    '10101': '4F#',
+    '10110': '4G',
+    '10111': '4G#',
+    '11000': '5A',
+    '11001': '5A#',
+    '11010': '5B',
+    '11011': '5C',
+    '11100': '5C#',
+    '11101': '5D',
+    '11110': '5D#',
+    '11111': '5E',
+    #'100000': '5F',
+    #'100001': '5F#',
+    #'100010': '5G',
+    #'100011': '5G#',
     # '100100': 'R',  # Rest
 }
 
@@ -124,15 +124,13 @@ def rate(population, fitnesses):
         #    melody.play()
         #    act = input(str(melody) + ' - Rate (1-10) or any key to hear again: ')
         try:
-            fitnesses[i] = melody.similarity(samples.SHAPE_OF_YOU_RIGHT_HAND)
-            if fitnesses[i] > 0.82:
+            fitnesses[i] = 1/(melody.difference(samples.SHAPE_OF_YOU_RIGHT_HAND))
+            if fitnesses[i] > 0.8:
                 melody.play()
         except ZeroDivisionError:
             print(melody)
             melody.play()
             exit(0)
-    with open('fitnesses', 'wb') as fit_file:
-        pickle.dump(fitnesses, fit_file)
 
 
 def weighted_random_choice(choices):
