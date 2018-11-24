@@ -1,6 +1,7 @@
 import os.path
 import pickle
 import random
+from statistics import mean
 
 import samples
 from notes import Melody, AudioNote, RestNote
@@ -49,10 +50,10 @@ GENES = {
     '11101': '5D',
     '11110': '5D#',
     '11111': '5E',
-    #'100000': '5F',
-    #'100001': '5F#',
-    #'100010': '5G',
-    #'100011': '5G#',
+    # '100000': '5F',
+    # '100001': '5F#',
+    # '100010': '5G',
+    # '100011': '5G#',
     # '100100': 'R',  # Rest
 }
 
@@ -124,7 +125,9 @@ def rate(population, fitnesses):
         #    melody.play()
         #    act = input(str(melody) + ' - Rate (1-10) or any key to hear again: ')
         try:
-            fitnesses[i] = 1/(melody.difference(samples.SHAPE_OF_YOU_RIGHT_HAND))
+            # fitnesses[i] = 1 / (min([melody.difference(samples.SHAPE_OF_YOU), melody.difference(
+            #     samples.SOMETHING_JUST_LIKE_THIS), melody.difference(samples.FADED)])*0.8)
+            fitnesses[i] = 1 / melody.difference(samples.SOMETHING_JUST_LIKE_THIS)
             if fitnesses[i] > 0.8:
                 melody.play()
         except ZeroDivisionError:
